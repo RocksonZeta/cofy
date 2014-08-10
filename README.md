@@ -96,6 +96,6 @@ co(function*(){
 ### cofy(target, [prefix] , [context])
 
 Enalbe a class or a object or a function to has [co](https://github.com/visionmedia/co) ability.
--- `target` - cofy target.it can be a class.prototype or a object or a function.
--- `prefix` - cofy will add function to the target(except target is function),the function name has a prefix. default is `co_`
--- `context` - the function execute context
+- `target` - cofy target.it can be a class.prototype or a object or a function.
+- `prefix` - cofy will add function to the target(except target is function),the function name has a prefix. default is `co_`
+- `context` - the function execute context
