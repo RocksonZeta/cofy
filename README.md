@@ -1,5 +1,9 @@
 cofy
 ====
+[![Build Status](https://travis-ci.org/RocksonZeta/cofy.svg?branch=master)](https://travis-ci.org/RocksonZeta/cofy)
+[![Coverage Status](https://coveralls.io/repos/RocksonZeta/cofy/badge.png?branch=master)](https://coveralls.io/r/RocksonZeta/cofy?branch=master)
+[![NPM version](https://badge.fury.io/js/cofy.svg)](http://badge.fury.io/js/cofy)
+[![Dependency Status](https://david-dm.org/RocksonZeta/cofy.svg)](https://david-dm.org/RocksonZeta/cofy)
 
 cofy is utility for convert you object or function in [co](https://github.com/visionmedia/co) style.
 
