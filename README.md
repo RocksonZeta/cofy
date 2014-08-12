@@ -103,3 +103,81 @@ Enalbe a class or a object or a function to has [co](https://github.com/visionme
 - `target` - cofy target.it can be a class.prototype or a object or a function.
 - `prefix` - cofy will add function to the target(except target is function),the function name has a prefix. default is `co_`
 - `context` - the function execute context
+
+## Some examples
+use cofy in redis.
+```javascript
+'use strict';
+var co = require("co");
+var cofy = require("cofy");
+var redis = require('redis');
+
+//enable redis to has a co ablitiy.
+cofy(redis.RedisClient.prototype);
+
+//now we can use mysql in co 
+var client = redis.createClient(6379,'192.168.13.184');
+co(function * () {
+	var r1 = yield client.co_set('a' ,1);
+	var r2 = yield client.co_get('a');
+	var r3 = yield client.co_hmset('h' , {k1:'v1' , k2:'v2'});
+	var r4 = yield client.co_hget('h' ,'k1');
+	console.log(r1,r2);
+	console.log(r3,r4);
+})();
+```
+
+use cofy in mysql.
+```
+'use strict';
+var co = require("co");
+var cofy = require("cofy");
+var mysql = require('mysql');
+
+//(felixge/node-mysql) has no extends entrance. so we can to this.
+var Connection = require('./node_modules/mysql/lib/Connection.js');
+var PoolConnection = require('./node_modules/mysql/lib/PoolConnection.js');
+var Pool = require('./node_modules/mysql/lib/Pool.js');
+var PoolCluster = require('./node_modules/mysql/lib/PoolCluster.js');
+
+//enable mysql to has a co ablitiy.
+cofy(Connection.prototype);
+cofy(PoolConnection.prototype);
+cofy(Pool.prototype);
+cofy(PoolCluster.prototype);
+
+var pool = mysql.createPool({
+	host: "192.168.13.184",
+    database: "cad",
+    user: "root",
+    password: "yzkj2014",
+});
+//now we can use mysql in co 
+co(function * () {
+	var con = yield pool.co_getConnection();
+	var result = yield con.co_query("select 1+1");
+	console.log(result);
+	con.release();
+})();
+
+
+//use it in transaction
+co(function*(){
+	var con ;
+	try{
+		con = yield pool.co_getConnection();
+		yield con.co_beginTransaction();
+		yield con.co_query("select some");
+		yield con.co_query("insert some");
+		yield con.co_query("update some");
+		yield con.co_commit();
+	}catch(e){
+		yield con.co_rollback();
+		console.error(e);
+		//to do 
+	}finally{
+		if(con){
+			con.release();
+		}
+	}
+})();
