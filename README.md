@@ -116,7 +116,7 @@ var redis = require('redis');
 cofy(redis.RedisClient.prototype);
 
 //now we can use mysql in co 
-var client = redis.createClient(6379,'192.168.13.184');
+var client = redis.createClient(6379,'localhost');
 co(function * () {
 	var r1 = yield client.co_set('a' ,1);
 	var r2 = yield client.co_get('a');
@@ -128,7 +128,7 @@ co(function * () {
 ```
 
 use cofy in mysql.
-```
+```javascript
 'use strict';
 var co = require("co");
 var cofy = require("cofy");
@@ -147,10 +147,10 @@ cofy(Pool.prototype);
 cofy(PoolCluster.prototype);
 
 var pool = mysql.createPool({
-	host: "192.168.13.184",
-    database: "cad",
+	host: "localhost",
+    database: "db",
     user: "root",
-    password: "yzkj2014",
+    password: "pass",
 });
 //now we can use mysql in co 
 co(function * () {
