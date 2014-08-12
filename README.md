@@ -105,7 +105,7 @@ Enalbe a class or a object or a function to has [co](https://github.com/visionme
 - `context` - the function execute context
 
 ## Some examples
-use cofy in redis.
+use cofy in [redis](https://github.com/mranney/node_redis).
 ```javascript
 'use strict';
 var co = require("co");
@@ -127,7 +127,7 @@ co(function * () {
 })();
 ```
 
-use cofy in mysql.
+use cofy in [mysql](https://github.com/felixge/node-mysql).
 ```javascript
 'use strict';
 var co = require("co");
