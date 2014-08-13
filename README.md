@@ -100,7 +100,7 @@ co(function*(){
 ### cofy(target, [prefix] , [context])
 
 Enalbe a class or a object or a function to has [co](https://github.com/visionmedia/co) ability.
-- `target` - cofy target.it can be a class.prototype or a object or a function.
+- `target` - cofy target.it can be a class.prototype or a object or a function.if target is object,cofy will add `prefix_oldMethod` to the target.
 - `prefix` - cofy will add function to the target(except target is function),the function name has a prefix. default is `co_`
 - `context` - the function execute context
 
@@ -181,3 +181,18 @@ co(function*(){
 		}
 	}
 })();
+
+use cofy in [request](https://github.com/mikeal/request).
+```javascript
+'use strict';
+var request = require('request');
+var cofy = require('cofy');
+var co = require('co');
+
+var co_request = cofy(request);
+
+co(function*(){
+	var r = yield co_request({url:"http://www.google.com"});
+	console.log(r);
+})();
+```
