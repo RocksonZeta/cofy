@@ -181,6 +181,7 @@ co(function*(){
 		}
 	}
 })();
+```
 
 use cofy in [request](https://github.com/mikeal/request).
 ```javascript
