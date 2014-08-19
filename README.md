@@ -5,7 +5,7 @@ cofy
 [![NPM version](https://badge.fury.io/js/cofy.svg)](http://badge.fury.io/js/cofy)
 [![Dependency Status](https://david-dm.org/RocksonZeta/cofy.svg)](https://david-dm.org/RocksonZeta/cofy)
 
-[![NPM](https://nodei.co/npm/cofy.png?downloads=true&stars=true)](https://nodei.co/npm/cofy.png?downloads=true&stars=true)
+[![NPM](https://nodei.co/npm/cofy.png?downloads=true&stars=true)](https://nodei.co/npm/cofy)
 
 cofy is utility for convert you object or function in [co](https://github.com/visionmedia/co) style.
 
@@ -44,7 +44,7 @@ var co = require("co");
 var cofy = require("cofy");
 var mysql = require('mysql');
 
-//(felixge/node-mysql) has no extends entrance. so we can to this.
+//(felixge/node-mysql) has no extends entrance. so we can do this.
 var Connection = require('./node_modules/mysql/lib/Connection.js');
 var PoolConnection = require('./node_modules/mysql/lib/PoolConnection.js');
 var Pool = require('./node_modules/mysql/lib/Pool.js');

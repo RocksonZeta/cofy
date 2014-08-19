@@ -5,7 +5,7 @@ module.exports = function (object,prefix,ctx){
 			var _this = this ||ctx || object;
 			var args = Array.prototype.slice.call(arguments);
 			return function(done){
-				args[args.length] = function(){	//mysql function call back
+				args[args.length] = function(){	//the callback
 					var results = Array.prototype.slice.call(arguments);
 					done.apply(null ,results);
 				};
@@ -19,7 +19,7 @@ module.exports = function (object,prefix,ctx){
 			var _this = this ||ctx || object;
 			var args = Array.prototype.slice.call(arguments);
 			return function(done){
-				args[args.length] = function(){	//mysql function call back
+				args[args.length] = function(){	//the callback
 					var results = Array.prototype.slice.call(arguments);
 					done.apply(null ,results);
 				};
