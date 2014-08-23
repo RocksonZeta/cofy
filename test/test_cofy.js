@@ -22,24 +22,29 @@ var fns = {
 	}
 };
 
+function Parent(){}
+Parent.prototype.mp = function(cb){
+	process.nextTick(function(){
+		return cb(null , "parent");
+	});
+};
+
 var Class = function(){
+	Parent.call(this);
 	this.name = "class1";
 };
-Class.prototype = {
-
-	m1:function(opt ,cb){
-		var _this = this;
-		process.nextTick(function(){
-			return cb(null,opt+_this.name);
-		});
-	},
-	me:function(cb){
-		process.nextTick(function(){
-			return cb("error");
-		});
-	}
+require('util').inherits(Class , Parent);
+Class.prototype.m1 = function(opt ,cb){
+	var _this = this;
+	process.nextTick(function(){
+		return cb(null,opt+_this.name);
+	});
 };
-
+Class.prototype.me = function(cb){
+	process.nextTick(function(){
+		return cb("error");
+	});
+};
 
 describe("cofy" , function(){
 	it("co function should be ok" , function(done){
@@ -49,20 +54,27 @@ describe("cofy" , function(){
 			done();
 		})();
 	});
-	it("co class should be ok" , function(done){
+	it("co object should be ok" , function(done){
 		co(function*(){
 			cofy(fns);
-			// console.log(yield fns.co_fn3(1));
 			(yield fns.co_fn1()).should.equal('fn1');
 			(yield fns.co_fn2(1)).should.equal(1);
 			done();
 		})();
 	});	
-	it("co object should be ok" , function(done){
+	it("co class should be ok" , function(done){
+		co(function*(){
+			cofy(Class.prototype , null , null , ['m1']);
+			var o = new Class();
+			(yield o.co_m1("hello ")).should.equal('hello class1');
+			done();
+		})();
+	});
+	it("co parent should be ok" , function(done){
 		co(function*(){
 			cofy(Class.prototype);
 			var o = new Class();
-			(yield o.co_m1("hello ")).should.equal('hello class1');
+			(yield o.co_mp()).should.equal('parent');
 			done();
 		})();
 	});

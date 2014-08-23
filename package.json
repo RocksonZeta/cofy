@@ -1,6 +1,6 @@
 {
 	"name": "cofy",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "cofy is utility for convert you object or function in co style..",
 	"main": "index.js",
 	"scripts": {

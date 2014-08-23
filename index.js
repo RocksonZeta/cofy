@@ -1,8 +1,8 @@
 'use strict';
-module.exports = function (object,prefix,ctx){
+module.exports = function (object,prefix,ctx,methods){
 	if('function' == typeof object){
 		return function(){
-			var _this = this ||ctx || object;
+			var _this = ctx ||prefix||this;
 			var args = Array.prototype.slice.call(arguments);
 			return function(done){
 				args[args.length] = function(){	//the callback
@@ -14,7 +14,18 @@ module.exports = function (object,prefix,ctx){
 		};
 	}
 	prefix = prefix || 'co_';
+	if(!object){
+		return;
+	}else{
+		module.exports(object.__proto__ , prefix , ctx);
+	}
 	Object.keys(object).forEach(function(i){
+		if('function' != typeof object[i]){
+			return;
+		}
+		if(methods && -1==methods.indexOf(i)){
+			return;
+		}
 		object[prefix+i] = function(){
 			var _this = this ||ctx || object;
 			var args = Array.prototype.slice.call(arguments);
