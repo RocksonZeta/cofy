@@ -17,7 +17,7 @@ module.exports = function (object,prefix,ctx,methods){
 	if(!object){
 		return;
 	}else{
-		module.exports(object.__proto__ , prefix , ctx);
+		module.exports(Object.getPrototypeOf(object) , prefix , ctx);
 	}
 	Object.keys(object).forEach(function(i){
 		if('function' != typeof object[i]){

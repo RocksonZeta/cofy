@@ -45,13 +45,11 @@ var cofy = require("cofy");
 var mysql = require('mysql');
 
 //(felixge/node-mysql) has no extends entrance. so we can do this.
-var Connection = require('./node_modules/mysql/lib/Connection.js');
 var PoolConnection = require('./node_modules/mysql/lib/PoolConnection.js');
 var Pool = require('./node_modules/mysql/lib/Pool.js');
 var PoolCluster = require('./node_modules/mysql/lib/PoolCluster.js');
 
 //enable mysql to has a co ablitiy.
-cofy(Connection.prototype);
 cofy(PoolConnection.prototype);
 cofy(Pool.prototype);
 cofy(PoolCluster.prototype);
