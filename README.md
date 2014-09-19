@@ -5,7 +5,7 @@ cofy
 [![NPM version](https://badge.fury.io/js/cofy.svg)](http://badge.fury.io/js/cofy)
 [![Dependency Status](https://david-dm.org/RocksonZeta/cofy.svg)](https://david-dm.org/RocksonZeta/cofy)
 
-[![NPM](https://nodei.co/npm/cofy.png?downloads=true&stars=true)](https://nodei.co/npm/cofy)
+[![NPM](https://nodei.co/npm/cofy.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/cofy/)
 
 cofy is utility for convert you object or function in [co](https://github.com/visionmedia/co) style.
 
