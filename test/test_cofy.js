@@ -54,6 +54,13 @@ describe("cofy" , function(){
 			done();
 		})();
 	});
+	it("co function no throwable should be ok" , function(done){
+		co(function*(){
+			var co_query = cofy(query,true);
+			(yield co_query(123)).should.equal('your id is 123');
+			done();
+		})();
+	});
 	it("co object should be ok" , function(done){
 		co(function*(){
 			cofy(fns);
@@ -64,7 +71,8 @@ describe("cofy" , function(){
 	});	
 	it("co class should be ok" , function(done){
 		co(function*(){
-			cofy(Class.prototype , null , null , ['m1']);
+			//object,throwable,ctx,methods,prefix
+			cofy(Class.prototype ,true, null , ['m1']);
 			var o = new Class();
 			(yield o.co_m1("hello ")).should.equal('hello class1');
 			done();
@@ -87,6 +95,16 @@ describe("cofy" , function(){
 			}catch(e){
 				e.should.equal('error');
 			}
+			done();
+		})();
+	});
+
+	it("co full args should be ok" , function(done){
+		co(function*(){
+			//object,throwable,ctx,methods,prefix
+			cofy(Class.prototype ,false, null , ['m1']);
+			var o = new Class();
+			(yield o.co_m1("hello ")).length.should.equal(2);
 			done();
 		})();
 	});

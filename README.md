@@ -7,7 +7,7 @@ cofy
 
 [![NPM](https://nodei.co/npm/cofy.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/cofy/)
 
-cofy is utility for convert you object or function in [co](https://github.com/visionmedia/co) style.
+Cofy is a bridge connecting callback style object to sequential style in [co](https://github.com/visionmedia/co) or [koa](https://github.com/koajs/koa) environment with one punch.
 
 ##Installation
 ```
@@ -106,15 +106,45 @@ co(function*(){
 })();
 ```
 
+cofy `nodejs` [fs](http://nodejs.org/api/fs.html) api:
+```js
+'use strict';
+var cofy = require('../');
+var co = require('co');
+
+var fs = require('fs');
+cofy(fs);
+
+fs.co_exists = cofy(fs.exists , false ,fs);	//fs.exists callback function has no error.
+
+co(function*(){
+	var file = '/hello.txt';
+	if(!(yield fs.co_exists(file))){
+		return;
+	}
+	var r = yield fs.co_readFile(file,'utf8');
+	console.log('fda' , r);
+	//also you can use it in old way
+	fs.readFile(file , 'utf8' , function(e,r){
+		if(e){
+			throw e;
+		}
+		console.log(r);
+	});
+})();
+```
+
+
 ## API
 
-### cofy(target, [prefix] , [context],[methods])
+### cofy(object,[throwable],[context],[methods],[prefix])
 
 Enalbe a class or a object or a function to has [co](https://github.com/visionmedia/co) ability.
-- `target` - cofy target.it can be a class.prototype or a object or a function.if target is object,cofy will add `prefix_oldMethod` to the target.
-- `prefix` - cofy will add function to the target(except target is function),the function name has a prefix. default is `co_`.
-- `context` - the function execute context.
-- `methods` - `Array`,if exists ,cofy will only cofy the methods in the target.
+- `target` `{object|prototype|function}` - cofy target.it can be a class.prototype or a object or a function.if target is object,cofy will add `prefix_oldMethod` to the target.
+- `throwable` `{bool}` - if `throwable` is true the first argument of callback function arguments will be deemed as a exception.if `throwable` is false,no exception will be throwed ,all arguments will be returned. default is `true`.
+- `context` `{object}` - the function execute context.
+- `methods` `{array}` - `Array`,if exists ,cofy will only cofy the methods in the target.
+- `prefix` `{string}` - cofy will add function to the target(except target is function),the function name has a prefix. default is `co_`.
 
 
 ##Usage:

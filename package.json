@@ -1,7 +1,7 @@
 {
 	"name": "cofy",
-	"version": "0.1.1",
-	"description": "cofy is utility for convert you object or function in co style..",
+	"version": "1.0.0",
+	"description": "Cofy is a bridge connecting callback style object to sequential style in co environment with one punch.",
 	"main": "index.js",
 	"scripts": {
 		"test": "mocha --recursive -R spec --require should --harmony test/ --bail",
