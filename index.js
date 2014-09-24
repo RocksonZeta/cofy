@@ -20,6 +20,11 @@ module.exports = function (object,prefix,ctx,methods){
 		module.exports(Object.getPrototypeOf(object) , prefix , ctx);
 	}
 	Object.keys(object).forEach(function(i){
+		try{
+			object[i];	//accessing property in prototype will trigger a error!
+		}catch(e){
+			return ;
+		}
 		if('function' != typeof object[i]){
 			return;
 		}
