@@ -1,6 +1,6 @@
 {
 	"name": "cofy",
-	"version": "2.0.0",
+	"version": "2.0.2",
 	"description": "Cofy is a bridge connecting callback style object to sequential style in co environment with one punch.",
 	"main": "index.js",
 	"scripts": {

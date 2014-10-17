@@ -40,7 +40,6 @@ exports.object = function(object,throwable,methods,prefix,ctx) {
 
 exports.class = function(constructor,throwable,methods,prefix) {
 	throwable = ('undefined' == typeof throwable ? true:throwable);
-	console.log('throwable' , throwable);
 	function _class(prototypeObject,throwable,methods,prefix){
 		if(!prototypeObject){
 			return;
@@ -52,7 +51,7 @@ exports.class = function(constructor,throwable,methods,prefix) {
 		Object.keys(prototypeObject).forEach(function(i){
 			var target ;
 			try{
-				target = constructor.prototype[i];	//accessing property in prototype will trigger a error!
+				target = prototypeObject[i];	//accessing property in prototype will trigger a error!
 			}catch(e){
 				return ;
 			}
