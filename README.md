@@ -162,5 +162,3 @@ Enalbe a class or a object or a function to has [co](https://github.com/visionme
 - `fn` `{function}` - cofy a function; `function(args , cb)` -> `yeild function(args)`
 - `throwable` `{bool}` - if `throwable` is true the first argument of callback function arguments will be deemed as a exception.if `throwable` is false,no exception will be throwed ,all arguments will be returned. default is `true`.
 - `context` `{object}` - the function execute context.
-- `methods` `{array}` - `Array`,if exists ,cofy will only cofy the methods in the target.
-- `prefix` `{string}` - cofy will add function to the target(except target is function),the function name has a prefix. default is `$`.
