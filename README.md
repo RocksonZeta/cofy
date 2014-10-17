@@ -14,6 +14,8 @@ Cofy is a bridge connecting callback style object to sequential style in [co](ht
 $ npm install cofy --save
 ```
 
+### NOTE: default prefix has changed to '$'.
+
 ## Some examples
 
 use cofy in [redis](https://github.com/mranney/node_redis).
