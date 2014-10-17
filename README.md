@@ -11,10 +11,11 @@ Cofy is a bridge connecting callback style object to sequential style in [co](ht
 
 ##Installation
 ```
-$ npm install cofy
+$ npm install cofy --save
 ```
 
 ## Some examples
+
 use cofy in [redis](https://github.com/mranney/node_redis).
 ```javascript
 'use strict';
@@ -23,15 +24,16 @@ var cofy = require("cofy");
 var redis = require('redis');
 
 //enable redis to has a co ablitiy.
-cofy(redis.RedisClient.prototype);
+cofy.class(redis.RedisClient);
 
 //now we can use mysql in co 
 var client = redis.createClient(6379,'localhost');
 co(function * () {
-	var r1 = yield client.co_set('a' ,1);
-	var r2 = yield client.co_get('a');
-	var r3 = yield client.co_hmset('h' , {k1:'v1' , k2:'v2'});
-	var r4 = yield client.co_hget('h' ,'k1');
+	//use class.$fn
+	var r1 = yield client.$set('a' ,1);
+	var r2 = yield client.$get('a');
+	var r3 = yield client.$hmset('h' , {k1:'v1' , k2:'v2'});
+	var r4 = yield client.$hget('h' ,'k1');
 	console.log(r1,r2);
 	console.log(r3,r4);
 })();
@@ -50,9 +52,9 @@ var Pool = require('mysql/lib/Pool.js');
 var PoolCluster = require('mysql/lib/PoolCluster.js');
 
 //enable mysql to has a co ablitiy.
-cofy(PoolConnection.prototype);
-cofy(Pool.prototype);
-cofy(PoolCluster.prototype);
+cofy.class(PoolConnection);
+cofy.class(Pool);
+cofy.class(PoolCluster);
 
 var pool = mysql.createPool({
 	host: "localhost",
@@ -62,8 +64,9 @@ var pool = mysql.createPool({
 });
 //now we can use mysql in co 
 co(function * () {
-	var con = yield pool.co_getConnection();
-	var result = yield con.co_query("select 1+1");
+	var con = yield pool.$getConnection();
+	//pay attention on precedence of operator! yield < [] .
+	var result = (yield con.$query("select 1+1"))[0]; 
 	console.log(result);
 	con.release();
 })();
@@ -73,14 +76,14 @@ co(function * () {
 co(function*(){
 	var con ;
 	try{
-		con = yield pool.co_getConnection();
-		yield con.co_beginTransaction();
-		yield con.co_query("select some");
-		yield con.co_query("insert some");
-		yield con.co_query("update some");
-		yield con.co_commit();
+		con = yield pool.$getConnection();
+		yield con.$beginTransaction();
+		yield con.$query("select some");
+		yield con.$query("insert some");
+		yield con.$query("update some");
+		yield con.$commit();
 	}catch(e){
-		yield con.co_rollback();
+		yield con.$rollback();
 		console.error(e);
 		//to do 
 	}finally{
@@ -98,10 +101,10 @@ var request = require('request');
 var cofy = require('cofy');
 var co = require('co');
 
-var co_request = cofy(request);
+var $request = cofy.fn(request);
 
 co(function*(){
-	var r = yield co_request({url:"http://www.google.com"});
+	var r = yield $request({url:"http://www.google.com"});
 	console.log(r);
 })();
 ```
@@ -115,14 +118,15 @@ var co = require('co');
 var fs = require('fs');
 cofy(fs);
 
-fs.co_exists = cofy(fs.exists , false ,fs);	//fs.exists callback function has no error.
+//fs.exists callback function has no error. we call set `throwable` to false.
+fs.$exists = cofy.object(fs.exists , false ,fs);	
 
 co(function*(){
 	var file = '/hello.txt';
-	if(!(yield fs.co_exists(file))){
+	if(!(yield fs.$exists(file))){
 		return;
 	}
-	var r = yield fs.co_readFile(file,'utf8');
+	var r = yield fs.$readFile(file,'utf8');
 	console.log('fda' , r);
 	//also you can use it in old way
 	fs.readFile(file , 'utf8' , function(e,r){
@@ -135,97 +139,28 @@ co(function*(){
 ```
 
 
-## API
+## cofy API
 
-### cofy(object,[throwable],[context],[methods],[prefix])
+### class(constructor,[throwable],[methods],[prefix])
 
 Enalbe a class or a object or a function to has [co](https://github.com/visionmedia/co) ability.
-- `target` `{object|prototype|function}` - cofy target.it can be a class.prototype or a object or a function.if target is object,cofy will add `prefix_oldMethod` to the target.
+- `constructor` `{function}` - cofy target.the constructor of the class;
+- `throwable` `{bool}` - if `throwable` is true the first argument of callback function arguments will be deemed as a exception.if `throwable` is false,no exception will be throwed ,all arguments will be returned. default is `true`.
+- `methods` `{array}` - `Array`,if exists ,cofy will only cofy the methods in the target.
+- `prefix` `{string}` - cofy will add function to the target(except target is function),the function name has a prefix. default is `$`.
+
+### object(object,[throwable],[methods],[prefix],[context])
+
+- `object` `{function}` - cofy target.the constructor of the class;
 - `throwable` `{bool}` - if `throwable` is true the first argument of callback function arguments will be deemed as a exception.if `throwable` is false,no exception will be throwed ,all arguments will be returned. default is `true`.
 - `context` `{object}` - the function execute context.
 - `methods` `{array}` - `Array`,if exists ,cofy will only cofy the methods in the target.
-- `prefix` `{string}` - cofy will add function to the target(except target is function),the function name has a prefix. default is `co_`.
+- `prefix` `{string}` - cofy will add function to the target(except target is function),the function name has a prefix. default is `$`.
 
 
-##Usage:
-
-Enable class to has `co` ability
-```javascript
-var cofy = require('cofy');
-function Class(){
-	this.name = 'class';
-}
-Class.prototype.doIO1 = function(options , cb){
-	var _this = this;
-	setTimeout(function(){
-		cb(null , [ options,_this.name]);
-	},100);
-};
-Class.prototype.doIO2 = function(cb){
-	var _this = this;
-	setTimeout(function(){
-		cb(null , _this.name);
-	},100);
-};
-
-//cofy Class
-cofy(Class.prototype);
-var obj = new Class();
-var co = require('co');
-co(function*(){
-	var r1 = yield obj.co_doIO1("co ");
-	var r2 = yield obj.co_doIO2();
-	console.log(r1,r2);
-})();
-
-```
-
-Enable object to has `co` ability
-```javascript
-var cofy = require('cofy');
-var obj = {
-	doIO1 : function(options , cb){
-		var _this = this;
-		setTimeout(function(){
-			cb(null , [ options,_this.name]);
-		},100);
-	},
-	doIO2 : function(cb){
-		var _this = this;
-		setTimeout(function(){
-			cb(null , _this.name);
-		},100);
-	}
-}
-
-//cofy object
-cofy(obj);
-var co = require('co');
-co(function*(){
-	var r1 = yield obj.co_doIO1("co ");
-	var r2 = yield obj.co_doIO2();
-	console.log(r1,r2);
-})();
-
-```
-
-Enable function to has `co` ability
-```javascript
-var cofy = require('cofy');
-function doIO1(cb){
-	var _this = this;
-	setTimeout(function(){
-		cb(null , "hello");
-	},100);
-}
-
-
-//cofy function
-var co_doIO1 = cofy(doIO1);
-var co = require('co');
-co(function*(){
-	var r1 = yield co_doIO1();
-	console.log(r1);
-})();
-
-```
+### fn(fn,[throwable],[context])
+- `fn` `{function}` - cofy a function; `function(args , cb)` -> `yeild function(args)`
+- `throwable` `{bool}` - if `throwable` is true the first argument of callback function arguments will be deemed as a exception.if `throwable` is false,no exception will be throwed ,all arguments will be returned. default is `true`.
+- `context` `{object}` - the function execute context.
+- `methods` `{array}` - `Array`,if exists ,cofy will only cofy the methods in the target.
+- `prefix` `{string}` - cofy will add function to the target(except target is function),the function name has a prefix. default is `$`.

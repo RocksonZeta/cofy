@@ -1,111 +1,96 @@
 'use strict';
-var co = require('co'),
-cofy = require('../index.js');
 
-function query(id ,cb){
-	process.nextTick(function(){
-		cb(null,"your id is "+id);
-	});
+var cofy = require('../'),
+util = require('util'),
+co = require('co')
+;
+require('should');
+
+
+function Parent(){
+
 }
+Parent.prototype.getName = function(cb){
+	return cb(null ,'father');
+};
+
+function Child(){
+	Parent.call(this);
+}
+util.inherits(Child , Parent);
+Child.prototype.getName = function(cb){
+	return cb(null ,'son');
+};
+Child.prototype.getAge = function(cb){
+	return cb(null ,20);
+};
+Child.prototype.getWhat = function(cb){
+	return cb(null ,'');
+};
+Object.defineProperty(Child.prototype,'p1' , {set:function(v){return v;}});
+cofy.class(Child , true , ['getName' , 'getAge','p1']);
+
+describe('cofy.class' , function(){
+	it('cofy.class Child class should be ok' , function(done){
+		co(function*(){
+			var child = new Child();
+			var parent = new Parent();
+			(yield child.$getName()).should.equal('son');
+			(yield parent.$getName()).should.equal('father');
+			done();
+		})();
+	});
+	it('cofy.class Child class has no $getWhat' , function(){
+		(typeof Child.prototype.$getWhat).should.equal('undefined');
+		Child.prototype.$getName.should.be.ok;
+	});
+});
 
 
-var fns = {
-	fn1 : function(cb){
-		process.nextTick(function(){
-			cb(null , "fn1");
-		});
+//test for object
+var object = {
+	getName:function(cb){
+		return cb(null ,'son');
 	},
-	fn2 : function(opt,cb){
-		process.nextTick(function(){
-			cb(null , opt);
-		});
+	name:"jim",
+	getWhat : function(cb){
+		return cb(null ,'');
+	},
+	getAge : function(cb){
+		return cb(null ,20);
+	},
+	set p1(v){
+		return v;
 	}
 };
+// Object.defineProperty(object , "p1" , {set:function(){}});
+cofy.object(object,true, ['getName' , 'getAge','p1']);
 
-function Parent(){}
-Parent.prototype.mp = function(cb){
-	process.nextTick(function(){
-		return cb(null , "parent");
+describe('cofy' , function(){
+	it('.object should be ok' , function(done){
+		co(function*(){
+			(yield object.$getName()).should.equal('son');
+			done();
+		})();
 	});
-};
+	it('.object has not $getWhat' , function(){
+		(typeof object.$getWhat).should.equal('undefined');
+		object.$getName.should.be.ok;
+	});
+});
 
-var Class = function(){
-	Parent.call(this);
-	this.name = "class1";
-};
-require('util').inherits(Class , Parent);
-Class.prototype.m1 = function(opt ,cb){
-	var _this = this;
-	process.nextTick(function(){
-		return cb(null,opt+_this.name);
-	});
-};
-Class.prototype.me = function(cb){
-	process.nextTick(function(){
-		return cb("error");
-	});
-};
+function getName(cb){
+	return cb(null , 'son');
+}
 
-describe("cofy" , function(){
-	it("co function should be ok" , function(done){
-		co(function*(){
-			var co_query = cofy(query);
-			(yield co_query(123)).should.equal('your id is 123');
-			done();
-		})();
-	});
-	it("co function no throwable should be ok" , function(done){
-		co(function*(){
-			var co_query = cofy(query,true);
-			(yield co_query(123)).should.equal('your id is 123');
-			done();
-		})();
-	});
-	it("co object should be ok" , function(done){
-		co(function*(){
-			cofy(fns);
-			(yield fns.co_fn1()).should.equal('fn1');
-			(yield fns.co_fn2(1)).should.equal(1);
-			done();
-		})();
-	});	
-	it("co class should be ok" , function(done){
-		co(function*(){
-			//object,throwable,ctx,methods,prefix
-			cofy(Class.prototype ,true, null , ['m1']);
-			var o = new Class();
-			(yield o.co_m1("hello ")).should.equal('hello class1');
-			done();
-		})();
-	});
-	it("co parent should be ok" , function(done){
-		co(function*(){
-			cofy(Class.prototype);
-			var o = new Class();
-			(yield o.co_mp()).should.equal('parent');
-			done();
-		})();
-	});
-	it("co object should throw error" , function(done){
-		co(function*(){
-			cofy(Class.prototype);
-			var o = new Class();
-			try{
-				(yield o.co_me()).should.equal('hello class1');
-			}catch(e){
-				e.should.equal('error');
-			}
-			done();
-		})();
-	});
+var $getName = cofy.fn(getName);
 
-	it("co full args should be ok" , function(done){
+describe('cofy' , function(){
+	it('.fn Child class should be ok' , function(done){
 		co(function*(){
-			//object,throwable,ctx,methods,prefix
-			cofy(Class.prototype ,false, null , ['m1']);
-			var o = new Class();
-			(yield o.co_m1("hello ")).length.should.equal(2);
+			(yield $getName()).should.equal('son');
 			done();
 		})();
 	});
 });
+

@@ -1,28 +1,26 @@
 'use strict';
-module.exports = function (object,throwable,ctx,methods,prefix){
-	throwable = ('undefined' == typeof throwable?true : throwable);
-	if('function' == typeof object){
-		return function(){
-			var _this = ctx ||this;
-			var args = Array.prototype.slice.call(arguments);
-			return function(done){
-				args[args.length] = function(){	//the callback
-					var results = Array.prototype.slice.call(arguments);
-					if(!throwable){
-						results.splice(0,0,null);
-					}
-					done.apply(null ,results);
-				};
-				object.apply(_this,args);
+exports.fn = function(fn,throwable,ctx) {
+	throwable = ('undefined' == typeof throwable ? true:throwable);
+	return function(){
+		var _this = ctx ||this;
+		var args = Array.prototype.slice.call(arguments);
+		return function(done){
+			args[args.length] = function(){	//the callback
+				var results = Array.prototype.slice.call(arguments);
+				if(!throwable){
+					results.splice(0,0,null);
+				}
+				done.apply(null ,results);
 			};
+			fn.apply(_this,args);
 		};
-	}
-	prefix = prefix || 'co_';
-	if(!object){
-		return;
-	}else{
-		module.exports(Object.getPrototypeOf(object) , prefix , ctx);
-	}
+	};
+};
+exports.object = function(object,throwable,methods,prefix,ctx) {
+	throwable = ('undefined' == typeof throwable ? true:throwable);
+	prefix = prefix || '$';
+	ctx = ctx || object;
+	
 	Object.keys(object).forEach(function(i){
 		var target ;
 		try{
@@ -36,20 +34,49 @@ module.exports = function (object,throwable,ctx,methods,prefix){
 		if(methods && -1==methods.indexOf(i)){
 			return;
 		}
-		object[prefix+i] = function(){
-			var _this = this ||ctx || object;
-			var args = Array.prototype.slice.call(arguments);
-			return function(done){
-				args[args.length] = function(){	//the callback
-					var results = Array.prototype.slice.call(arguments);
-					if(!throwable){
-						results.splice(0,0,null);
-					}					
-					done.apply(null ,results);
-				};
-				object[i].apply(_this,args);
-			};
-		};
+		object[prefix+i] = exports.fn(target,throwable , ctx);
 	});
-	return object;
+};
+
+exports.class = function(constructor,throwable,methods,prefix) {
+	throwable = ('undefined' == typeof throwable ? true:throwable);
+	console.log('throwable' , throwable);
+	function _class(prototypeObject,throwable,methods,prefix){
+		if(!prototypeObject){
+			return;
+		}else{
+			// cofy parent class
+			_class(Object.getPrototypeOf(prototypeObject),throwable,methods,prefix);
+		}
+		prefix = prefix || '$';
+		Object.keys(prototypeObject).forEach(function(i){
+			var target ;
+			try{
+				target = constructor.prototype[i];	//accessing property in prototype will trigger a error!
+			}catch(e){
+				return ;
+			}
+			if('function' != typeof target || target && target.constructor && 'GeneratorFunction' == target.constructor.name ){
+				return;
+			}
+			if(methods && -1==methods.indexOf(i)){
+				return;
+			}
+			prototypeObject[prefix+i] = function(){
+				var _this = this;
+				var args = Array.prototype.slice.call(arguments);
+				return function(done){
+					args[args.length] = function(){	//the callback
+						var results = Array.prototype.slice.call(arguments);
+						if(!throwable){
+							results.splice(0,0,null);
+						}
+						done.apply(null ,results);
+					};
+					prototypeObject[i].apply(_this,args);
+				};
+			};
+		});
+	}
+	_class(constructor.prototype,throwable,methods,prefix);
 };
