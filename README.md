@@ -145,7 +145,7 @@ co(function*(){
 
 ### class(constructor,[throwable],[methods],[prefix])
 
-Enalbe a class or a object or a function to has [co](https://github.com/visionmedia/co) ability.
+Enable a class or a object or a function to has [co](https://github.com/visionmedia/co) ability.
 - `constructor` `{function}` - cofy target.the constructor of the class;
 - `throwable` `{bool}` - if `throwable` is true the first argument of callback function arguments will be deemed as a exception.if `throwable` is false,no exception will be throwed ,all arguments will be returned. default is `true`.
 - `methods` `{array}` - `Array`,if exists ,cofy will only cofy the methods in the target.
